@@ -1,3 +1,4 @@
+import { urlencoded } from 'body-parser';
 import cors from 'cors';
 import express from "express";
 require('dotenv').config();
@@ -5,6 +6,8 @@ require('dotenv').config();
 import "express-async-errors";
 import rateLimit from "express-rate-limit";
 import { config } from './config/config';
+import { connectDB } from './config/db';
+import { goalRouter } from './routes/goalsRouter';
 import { handleError } from './utils/errors';
 
 const { PORT = 3001 } = process.env;
@@ -21,7 +24,7 @@ const limiter = rateLimit({
   max: 100,
 })
 
-
+connectDB();
 
 const app = express();
 
@@ -31,8 +34,18 @@ app.use(limiter);
 
 app.use(express.json());
 
+app.use(urlencoded({
+  extended: true
+}))
+
+//routing
+
+app.use('/api/goals', goalRouter);
+
+//error middleware
 
 app.use(handleError);
+// app.use(errorHandler);
 
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', config.corsOrigin,);
