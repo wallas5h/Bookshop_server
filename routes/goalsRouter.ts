@@ -7,7 +7,7 @@ export const goalRouter = Router();
 goalRouter
   .get('/', getGoals)
 
-  .post('/:id', setGoals)
+  .post('/', setGoals)
 
   .put('/:id', updateGoals)
 
