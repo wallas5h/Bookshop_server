@@ -1,14 +1,13 @@
 import { urlencoded } from 'body-parser';
 import cors from 'cors';
 import express from "express";
-require('dotenv').config();
-// import './utils/db';
 import "express-async-errors";
 import rateLimit from "express-rate-limit";
 import { config } from './config/config';
 import { connectDB } from './config/db';
-import { goalRouter } from './routes/goalsRouter';
-import { handleError } from './utils/errors';
+import { errorHandler } from './middleware/errorMiddleware';
+import { userRouter } from './routes/userRouter';
+require('dotenv').config();
 
 const { PORT = 3001 } = process.env;
 
@@ -40,12 +39,12 @@ app.use(urlencoded({
 
 //routing
 
-app.use('/api/goals', goalRouter);
+app.use('/api/users', userRouter);
 
 //error middleware
 
-app.use(handleError);
-// app.use(errorHandler);
+// app.use(handleError);
+app.use(errorHandler);
 
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', config.corsOrigin,);
