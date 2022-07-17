@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getMe, loginUser, registerUser } from "../controllers";
+import { getMe, loginUser, logoutUser, registerUser } from "../controllers";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 
@@ -9,5 +9,7 @@ userRouter
   .post('/', registerUser)
 
   .post('/login', loginUser)
+
+  .get('/logout', logoutUser)
 
   .get('/me', authMiddleware, getMe)

@@ -17,9 +17,9 @@ export interface tokenEntity extends JwtPayload {
 // @acces Public
 export const registerUser = async (req: Request, res: Response) => {
 
-  const { name, email, password } = req.body;
+  const { name, email, password, terms } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !terms) {
     res
       .status(400)
     throw new ValidationError('Please add all fields');
@@ -32,6 +32,9 @@ export const registerUser = async (req: Request, res: Response) => {
   if (userExist) {
     res
       .status(400)
+      .json({
+        message: 'User already exists'
+      })
     throw new ValidationError('User already exists');
   }
 
@@ -40,10 +43,11 @@ export const registerUser = async (req: Request, res: Response) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // create user
-  const user: UserEntity = await User.create({
+  const user = await new User({
     name,
     email,
     password: hashedPassword,
+    terms,
     token: ""
   })
 
@@ -55,7 +59,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
     user.token = token;
 
-    await User.findByIdAndUpdate({ _id: user._id }, user)
+    await user.save()
 
     res
       .status(201)
@@ -63,10 +67,14 @@ export const registerUser = async (req: Request, res: Response) => {
         _id: user._id,
         email: user.email,
         token,
+        message: 'Register user succesfull'
       })
   } else {
     res
       .status(400)
+      .json({
+        message: 'Invalid user data'
+      })
     throw new ValidationError('Invalid user data');
   }
 
@@ -93,16 +101,57 @@ export const loginUser = async (req: Request, res: Response) => {
       })
       .json({
         _id: user._id,
+        name: user.name,
         email: user.email,
         token,
+        message: 'Login successfully'
       })
   } else {
+    res
+      .status(400)
+      .json({
+        message: 'Invalid credentials'
+      })
+    throw new ValidationError('Invalid credentials');
+  }
+
+}
+
+// @desc Logout user
+// @route get /api/users/logout
+// @acces Public
+export const logoutUser = async (req: Request, res: Response) => {
+
+  const jwtCookie: string | undefined = req.cookies.jwt;
+  const userId = jwt.verify(jwtCookie, process.env.ACCESS_TOKEN_KEY) as tokenEntity;
+
+  console.log(userId)
+
+  if (!userId) {
     res
       .status(400)
     throw new ValidationError('Invalid credentials');
   }
 
+  const user: UserEntity = await User.findOne({ _id: userId });
+
+  if (!user) {
+    res
+      .status(400)
+    throw new ValidationError('Invalid credentials');
+  }
+
+  res
+    .status(200)
+    .clearCookie('jwt')
+    .json({
+      message: 'You have been successfully logged out'
+    })
+
+
 }
+
+
 
 
 // @desc get user data
@@ -110,27 +159,44 @@ export const loginUser = async (req: Request, res: Response) => {
 // @acces Private
 export const getMe = async (req: any, res: Response) => {
 
-  let jwtCookie: string | undefined = req.cookies.jwt;
+  const jwtCookie: string | undefined = req.cookies.jwt;
+  const userId = jwt.verify(jwtCookie, process.env.ACCESS_TOKEN_KEY) as tokenEntity;
 
-  const { _id, email } = await User.findById(req.user.id);
+  const user: UserEntity = await User.findOne({ _id: userId });
 
-
-  if (jwtCookie && verifyToken(jwtCookie) === _id) {
-
-    res
-      .status(200)
-      .json({
-        id: _id,
-        email
-      })
-  }
-  else {
+  if (!user) {
     res
       .status(400)
     throw new ValidationError('Invalid credentials');
   }
 
+  res
+    .status(200)
+    .json({
+      id: user._id,
+      email: user.email
+    })
 }
+
+
+// let jwtCookie: string | undefined = req.cookies.jwt;
+// if (jwtCookie && verifyToken(jwtCookie) === _id) {
+
+//   if (verifyToken(jwtCookie) === _id) {
+//     res
+//       .status(200)
+//       .json({
+//         id: _id,
+//         email
+//       })
+//   }
+//   else {
+//     res
+//       .status(400)
+//     throw new ValidationError('Invalid credentials');
+//   }
+
+// }
 
 // Generate JWT
 const generateToken = (id: string) => {

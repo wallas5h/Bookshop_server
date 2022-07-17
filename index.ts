@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import { config } from './config/config';
 import { connectDB } from './config/db';
 import { errorHandler } from './middleware/errorMiddleware';
+import { bookRouter } from './routes/bookRouter';
 import { userRouter } from './routes/userRouter';
 require('dotenv').config();
 
@@ -40,6 +41,7 @@ app.use(urlencoded({
 //routing
 
 app.use('/api/users', userRouter);
+app.use('/api/book', bookRouter);
 
 //error middleware
 
