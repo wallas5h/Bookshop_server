@@ -66,7 +66,6 @@ export const registerUser = async (req: Request, res: Response) => {
       .json({
         _id: user._id,
         email: user.email,
-        token,
         message: 'Register user succesfull'
       })
   } else {
@@ -88,10 +87,14 @@ export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   // Check for user email
-  const user: UserEntity = await User.findOne({ email });
-  const token = user.token;
+  const user = await User.findOne({ email });
+
+  const token = generateToken(user._id);
+  user.token = token;
+  await user.save()
 
   if (user && bcrypt.compare(password, user.password)) {
+
     res
       .status(200)
       .cookie('jwt', token, {
@@ -103,7 +106,6 @@ export const loginUser = async (req: Request, res: Response) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        token,
         message: 'Login successfully'
       })
   } else {
@@ -123,9 +125,7 @@ export const loginUser = async (req: Request, res: Response) => {
 export const logoutUser = async (req: Request, res: Response) => {
 
   const jwtCookie: string | undefined = req.cookies.jwt;
-  const userId = jwt.verify(jwtCookie, process.env.ACCESS_TOKEN_KEY) as tokenEntity;
-
-  console.log(userId)
+  const userId = verifyToken(jwtCookie);
 
   if (!userId) {
     res
@@ -133,13 +133,16 @@ export const logoutUser = async (req: Request, res: Response) => {
     throw new ValidationError('Invalid credentials');
   }
 
-  const user: UserEntity = await User.findOne({ _id: userId });
+  const user = await User.findOne({ _id: userId });
 
   if (!user) {
     res
       .status(400)
     throw new ValidationError('Invalid credentials');
   }
+
+  user.token = null;
+  await user.save();
 
   res
     .status(200)
@@ -157,12 +160,15 @@ export const logoutUser = async (req: Request, res: Response) => {
 // @desc get user data
 // @route get /api/users/me
 // @acces Private
-export const getMe = async (req: any, res: Response) => {
+export const getMe = async (req: Request, res: Response) => {
 
+  let user: UserEntity;
   const jwtCookie: string | undefined = req.cookies.jwt;
-  const userId = jwt.verify(jwtCookie, process.env.ACCESS_TOKEN_KEY) as tokenEntity;
 
-  const user: UserEntity = await User.findOne({ _id: userId });
+  if (jwtCookie) {
+    const userId = verifyToken(jwtCookie);
+    user = await User.findOne({ _id: userId });
+  }
 
   if (!user) {
     res
@@ -179,25 +185,6 @@ export const getMe = async (req: any, res: Response) => {
 }
 
 
-// let jwtCookie: string | undefined = req.cookies.jwt;
-// if (jwtCookie && verifyToken(jwtCookie) === _id) {
-
-//   if (verifyToken(jwtCookie) === _id) {
-//     res
-//       .status(200)
-//       .json({
-//         id: _id,
-//         email
-//       })
-//   }
-//   else {
-//     res
-//       .status(400)
-//     throw new ValidationError('Invalid credentials');
-//   }
-
-// }
-
 // Generate JWT
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.ACCESS_TOKEN_KEY, {
@@ -206,7 +193,7 @@ const generateToken = (id: string) => {
 }
 
 // verify JWT
-const verifyToken = (jwtCookie) => {
+export const verifyToken = (jwtCookie) => {
   let encryptToken = jwt.verify(jwtCookie, process.env.ACCESS_TOKEN_KEY) as tokenEntity;
   const id = encryptToken.id;
   if (!id) {

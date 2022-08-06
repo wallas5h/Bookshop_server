@@ -33,6 +33,11 @@ export interface UserRegisterRes {
   message?: string
 }
 
+export interface UserMeRes {
+  id?: string
+  email?: string
+}
+
 export type UserLoginRes = UserRegisterRes;
 
 export type UserResetPasswordReq = Omit<UserLogInReq, 'password'>
