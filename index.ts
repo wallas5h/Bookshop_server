@@ -1,4 +1,5 @@
 import { urlencoded } from 'body-parser';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from "express";
 import "express-async-errors";
@@ -7,7 +8,9 @@ import { config } from './config/config';
 import { connectDB } from './config/db';
 import { errorHandler } from './middleware/errorMiddleware';
 import { bookRouter } from './routes/bookRouter';
+import { cartRouter } from './routes/cartRouter';
 import { userRouter } from './routes/userRouter';
+import { wishlistRouter } from './routes/wishlistRouter';
 require('dotenv').config();
 
 const { PORT = 3001 } = process.env;
@@ -30,9 +33,12 @@ const app = express();
 
 app.use(cors(corsOptions));
 
+app.use(cookieParser());
+
 app.use(limiter);
 
 app.use(express.json());
+
 
 app.use(urlencoded({
   extended: true
@@ -42,6 +48,8 @@ app.use(urlencoded({
 
 app.use('/api/users', userRouter);
 app.use('/api/book', bookRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/wishlist', wishlistRouter);
 
 //error middleware
 

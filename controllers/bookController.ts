@@ -18,6 +18,45 @@ export const getBooks = async (req, res) => {
     .json(books)
 }
 
+// @desc get books
+// @route get /api/book/search/:fraze
+// @acces Pivate
+
+export const searchBooks = async (req, res) => {
+  const books = await Book.find({})
+
+  res
+    .status(200)
+    .json(books)
+}
+
+// @desc feature books
+// @route get /api/book/feature
+// @acces Pivate
+
+export const featureBooks = async (req, res) => {
+  const books = await Book.find({}).sort({ newPrice: 1 }).limit(10)
+
+  res
+    .status(200)
+    .json(books)
+}
+
+// @desc feature books
+// @route get /api/book/:id
+// @acces Pivate
+
+export const findBookById = async (req, res) => {
+  const id = req.params.id
+  const book = await Book.find({
+    _id: id
+  })
+
+  res
+    .status(200)
+    .json(book)
+}
+
 // @desc set book
 // @route post /api/book
 // @acces Pivate

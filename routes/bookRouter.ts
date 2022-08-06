@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteBook, getBooks, setBook, updateBook } from "../controllers";
+import { deleteBook, featureBooks, findBookById, getBooks, searchBooks, setBook, updateBook } from "../controllers";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 
@@ -8,6 +8,12 @@ export const bookRouter = Router();
 
 bookRouter
   .get('/', getBooks)
+
+  .get('/search/:fraze', searchBooks)
+
+  .get('/feature', featureBooks)
+
+  .get('/:id', findBookById)
 
   .post('/', setBook)
 
