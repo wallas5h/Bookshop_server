@@ -3,4 +3,5 @@ export * from './cart';
 export * from './guest';
 export * from './newsletter';
 export * from './user';
+export * from './wishlist';
 
