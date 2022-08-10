@@ -14,6 +14,7 @@ export const cartSchema = new mongoose.Schema({
     id: String,
     count: Number,
     price: Number,
+    availability: Boolean,
   }
   ],
   active: Boolean,

@@ -76,6 +76,8 @@ export const addBookToCart = async (req, res) => {
 
   const jwtCookie: string | undefined = req.cookies.jwt;
 
+  let bookAvailability: Boolean = true;
+
   if (jwtCookie) {
     userId = verifyToken(jwtCookie);
     user = await User.findOne({ _id: userId });
@@ -116,6 +118,19 @@ export const addBookToCart = async (req, res) => {
       })
   }
 
+  if (!book.count) {
+    bookAvailability = false;
+  }
+
+  if (!bookAvailability) {
+    res
+      .status(400)
+      .json({
+        message: 'Book out of store. Please try later.',
+      })
+    return;
+  }
+
   if (!cart && user) {
     cart = await Cart.create({
       user: userId,
@@ -125,6 +140,7 @@ export const addBookToCart = async (req, res) => {
           id: bookId,
           count: 1,
           price: book.newPrice,
+          availability: bookAvailability,
         }],
       active: true
     })
@@ -138,6 +154,7 @@ export const addBookToCart = async (req, res) => {
           id: bookId,
           count: 1,
           price: book.newPrice,
+          availability: bookAvailability,
         }],
       active: true
     })
@@ -159,7 +176,8 @@ export const addBookToCart = async (req, res) => {
         {
           id: bookId,
           count: 1,
-          price: book.newPrice
+          price: book.newPrice,
+          availability: bookAvailability,
         });
     }
 
@@ -220,6 +238,28 @@ export const decreaseCountBookInCart = async (req, res) => {
       .json({
         message: 'Invalid authorisation',
       })
+  }
+
+  const book = await Book.findOne({
+    _id: bookId
+  })
+
+
+  if (!book) {
+    res
+      .status(400)
+      .json({
+        message: 'Invalid book Id',
+      })
+  };
+
+  if (book.count <= 0) {
+    res
+      .status(400)
+      .json({
+        message: 'Book out of store',
+      })
+    return;
   }
 
   cart.books.forEach(book => {

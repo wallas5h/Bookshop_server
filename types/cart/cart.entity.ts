@@ -8,4 +8,5 @@ export interface GetBooksFromCartResponse {
   id: string,
   _id: string,
   count: number,
+  availability?: boolean,
 }
