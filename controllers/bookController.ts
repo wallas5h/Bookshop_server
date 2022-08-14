@@ -19,15 +19,55 @@ export const getBooks = async (req, res) => {
 }
 
 // @desc get books
-// @route get /api/book/search/:fraze
+// @route get /api/book/search/querystrings
 // @acces Pivate
 
 export const searchBooks = async (req, res) => {
-  const books = await Book.find({})
+
+  const searchPhrase = String(req.query.phrase);
+  const currentPage = Number(req.query.currentPage);
+  const perPage = Number(req.query.perPage);
+
+  const maxPerPage = perPage;
+
+  const books = await Book.find({
+    $or: [
+      {
+        title: { $regex: '.*' + searchPhrase + '.*' },
+        active: true,
+      },
+      {
+        author: { $regex: '.*' + searchPhrase + '.*' },
+        active: true,
+      },
+    ]
+  })
+    .skip(maxPerPage * (currentPage - 1))
+  // .limit(8)
+
+  const count = await Book.find({
+    $or: [
+      {
+        title: { $regex: '.*' + searchPhrase + '.*' },
+        active: true,
+      },
+      {
+        author: { $regex: '.*' + searchPhrase + '.*' },
+        active: true,
+      },
+    ]
+  }).count()
+
+  const totalPages = Math.ceil(count / maxPerPage);
 
   res
     .status(200)
-    .json(books)
+    .json({
+      books,
+      currentPage,
+      totalPages,
+      count,
+    })
 }
 
 // @desc feature books
@@ -35,7 +75,10 @@ export const searchBooks = async (req, res) => {
 // @acces Pivate
 
 export const featureBooks = async (req, res) => {
-  const books = await Book.find({}).sort({ newPrice: 1 }).limit(10)
+  const books = await Book.find({
+    count: { $gt: 0 },
+    active: true,
+  }).sort({ newPrice: 1 }).limit(10)
 
   res
     .status(200)

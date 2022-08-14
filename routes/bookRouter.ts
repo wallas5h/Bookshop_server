@@ -9,7 +9,7 @@ export const bookRouter = Router();
 bookRouter
   .get('/', getBooks)
 
-  .get('/search/:fraze', searchBooks)
+  .get('/search/', searchBooks)
 
   .get('/feature', featureBooks)
 
