@@ -28,7 +28,8 @@
     "method-override": "^3.0.0",
     "mongodb": "^4.7.0",
     "mongoose": "^6.3.6",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
