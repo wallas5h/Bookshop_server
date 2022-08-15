@@ -28,3 +28,4 @@ controllers/goalController.ts
 models/goalModel.ts
 routes/goalsRouter.ts
 controllers/goalController.ts
+utils/mailer2.ts

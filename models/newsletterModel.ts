@@ -11,6 +11,7 @@ const newsleterSchema = new mongoose.Schema({
     required: [true, 'Please add an email'],
     validate: [isEmail, 'invalid email']
   },
+  confirm: Boolean,
 },
   {
     timestamps: true

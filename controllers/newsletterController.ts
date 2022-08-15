@@ -1,14 +1,14 @@
+import { config } from "../config/config";
+import { Newsletter } from "../models/newsletterModel";
+import { sendMail } from "../utils/mailer";
 
 
 // @desc get newsletter
 // @route get /api/newsletter
 // @acces Pivate
 
-import { Newsletter } from "../models/newsletterModel";
 
 export const getUserFromNewsletter = async (req, res) => {
-
-
 
 }
 
@@ -30,19 +30,29 @@ export const addUserToNewsletter = async (req, res) => {
 
   const emailExist = await Newsletter.findOne({
     email,
-  })
+  });
 
-  if (emailExist) {
+  if (emailExist && emailExist.confirm) {
     res
       .status(200)
       .json({
-        message: 'That email address already exists'
+        message: `That email address already exists in Newsletter's list`
+      })
+    return;
+  }
+
+  if (emailExist && !emailExist.confirm) {
+    res
+      .status(200)
+      .json({
+        message: `Email: ${email} is waiting for sign up. Check your email.`
       })
     return;
   }
 
   const newEmailInNewsletter = await Newsletter.create({
     email,
+    confirm: false
   })
 
   if (!newEmailInNewsletter) {
@@ -55,16 +65,58 @@ export const addUserToNewsletter = async (req, res) => {
     return;
   }
 
-  // @TODO send email to new newsletter user
+  sendMail(email, "Newsletter - sign up",
+    `  <h3>Hello</h3>
+  <div> We noticed you haven't completed the newsletter sign up process. Please
+    <a href="${config.domaniAddress}/newsletter/confirm/${newEmailInNewsletter._id}">click here to confirm your email address</a> and you'll start receiving newsletters from us.</div>
+  <div><button><a href="${config.domaniAddress}/newsletter/confirm/${newEmailInNewsletter._id}">Confirm my email</a></button></div>
+  <div> Thank you, </div>
+  <h1>BooksShop</h1>
+  `)
 
   res
     .status(200)
     .json({
-      message: `Email: ${email} added to newsletter`,
+      message: `Check your email and sign up for newsletter.`,
     })
 
 }
 
+
+
+// @desc get newsletter
+// @route get /api/newsletter/confirm/:id
+// @acces Pivate
+
+export const confirmNewsletter = async (req, res) => {
+
+  const newsletterId = String(req.params.id);
+
+  if (!newsletterId) {
+    res
+      .status(400)
+      .send('Error: Invalid id')
+    return;
+  }
+
+  const newNewsletterUser = await Newsletter.findOne({
+    _id: newsletterId
+  });
+
+  if (!newNewsletterUser) {
+    res
+      .status(400)
+      .send('Error: Invalid id')
+    return;
+  }
+
+  newNewsletterUser.confirm = true;
+  await newNewsletterUser.save();
+
+  res
+    .status(200)
+    .send('Thank You for confirming Your email address. ')
+}
 
 // @desc delete newsletter
 // @route post /api/newsletter/:id
