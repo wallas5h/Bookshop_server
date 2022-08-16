@@ -1,7 +1,19 @@
 import nodemailer from 'nodemailer';
+import hbs from 'nodemailer-express-handlebars';
+import path from 'path';
 import process from "process";
 
-export const sendMail = async (email, subject, text) => {
+export enum EmailSubject {
+  newsletter = 'Newsletter - sign up',
+  register = ''
+}
+
+export enum EmailType {
+  newsletter = 'newsletter/newsletter',
+  register = ''
+}
+
+export const sendMail = async (email, subject, emailType: EmailType, link, link2 = "") => {
 
   let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -13,12 +25,27 @@ export const sendMail = async (email, subject, text) => {
     },
   });
 
+  const handlebarOptions = {
+    viewEngine: {
+      extName: '.hbs',
+      partialsDir: path.join(__dirname, '../views/'),
+      layoutsDir: path.join(__dirname, '../views/'),
+      defaultLayout: ''
+    },
+    viewPath: path.join(__dirname, '../views/'),
+    extName: '.hbs'
+  };
+
+  transporter.use('compile', hbs(handlebarOptions));
+
   const mailOptions = {
     from: `"BooksShop" <${process.env.MAILER_USER_GG}>`,
     to: email,
     subject,
-    // text,
-    html: text, // html body
+    template: emailType,
+    context: {
+      link,
+    }
   }
 
   let info = await transporter.sendMail(mailOptions, function (err, data) {

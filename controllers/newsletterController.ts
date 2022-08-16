@@ -1,6 +1,6 @@
 import { config } from "../config/config";
 import { Newsletter } from "../models/newsletterModel";
-import { sendMail } from "../utils/mailer";
+import { EmailSubject, EmailType, sendMail } from "../utils/mailer";
 
 
 // @desc get newsletter
@@ -32,7 +32,7 @@ export const addUserToNewsletter = async (req, res) => {
     email,
   });
 
-  if (emailExist && emailExist.confirm) {
+  if (emailExist && emailExist.confirmed) {
     res
       .status(200)
       .json({
@@ -41,7 +41,7 @@ export const addUserToNewsletter = async (req, res) => {
     return;
   }
 
-  if (emailExist && !emailExist.confirm) {
+  if (emailExist && !emailExist.confirmed) {
     res
       .status(200)
       .json({
@@ -52,7 +52,7 @@ export const addUserToNewsletter = async (req, res) => {
 
   const newEmailInNewsletter = await Newsletter.create({
     email,
-    confirm: false
+    confirmed: false
   })
 
   if (!newEmailInNewsletter) {
@@ -65,14 +65,9 @@ export const addUserToNewsletter = async (req, res) => {
     return;
   }
 
-  sendMail(email, "Newsletter - sign up",
-    `  <h3>Hello</h3>
-  <div> We noticed you haven't completed the newsletter sign up process. Please
-    <a href="${config.domaniAddress}/newsletter/confirm/${newEmailInNewsletter._id}">click here to confirm your email address</a> and you'll start receiving newsletters from us.</div>
-  <div><button><a href="${config.domaniAddress}/newsletter/confirm/${newEmailInNewsletter._id}">Confirm my email</a></button></div>
-  <div> Thank you, </div>
-  <h1>BooksShop</h1>
-  `)
+  const confirmedLink = `${config.domaniAddress}/newsletter/confirm/${newEmailInNewsletter._id}`
+
+  sendMail(email, EmailSubject.newsletter, EmailType.newsletter, confirmedLink)
 
   res
     .status(200)
@@ -81,8 +76,6 @@ export const addUserToNewsletter = async (req, res) => {
     })
 
 }
-
-
 
 // @desc get newsletter
 // @route get /api/newsletter/confirm/:id
@@ -110,12 +103,12 @@ export const confirmNewsletter = async (req, res) => {
     return;
   }
 
-  newNewsletterUser.confirm = true;
+  newNewsletterUser.confirmed = true;
   await newNewsletterUser.save();
 
   res
     .status(200)
-    .send('Thank You for confirming Your email address. ')
+    .send('Thank you for confirming your email address. ')
 }
 
 // @desc delete newsletter
