@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getMe, loginUser, logoutUser, registerUser } from "../controllers";
+import { confirmRegistration, getMe, loginUser, logoutUser, registerUser, resendRegisterVerification } from "../controllers";
 
 
 export const userRouter = Router();
@@ -10,6 +10,10 @@ userRouter
   .post('/login', loginUser)
 
   .get('/logout', logoutUser)
+
+  .get('/confirm/:id', confirmRegistration)
+
+  .post('/resendRegisterVerification', resendRegisterVerification)
 
   .get('/me', getMe)
   // .get('/me', authMiddleware, getMe)

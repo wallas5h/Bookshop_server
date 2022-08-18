@@ -65,7 +65,7 @@ export const addUserToNewsletter = async (req, res) => {
     return;
   }
 
-  const confirmedLink = `${config.domaniAddress}/newsletter/confirm/${newEmailInNewsletter._id}`
+  const confirmedLink = `${config.domainAddress}/newsletter/confirm/${newEmailInNewsletter._id}`
 
   sendMail(email, EmailSubject.newsletter, EmailType.newsletter, confirmedLink)
 

@@ -5,12 +5,12 @@ import process from "process";
 
 export enum EmailSubject {
   newsletter = 'Newsletter - sign up',
-  register = ''
+  register = 'Activate your account',
 }
 
 export enum EmailType {
   newsletter = 'newsletter/newsletter',
-  register = ''
+  register = 'register/register'
 }
 
 export const sendMail = async (email, subject, emailType: EmailType, link, link2 = "") => {
@@ -52,7 +52,7 @@ export const sendMail = async (email, subject, emailType: EmailType, link, link2
     if (err) {
       console.log(err);
     } else {
-
+      // console.log(data);
       console.log("Message sent!");
     }
   });

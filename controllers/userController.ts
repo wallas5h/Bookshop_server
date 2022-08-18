@@ -3,10 +3,12 @@ import { Request, Response } from "express";
 import "express-async-errors";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import process from "process";
+import { config } from "../config/config";
 import { User } from "../models";
 import { UserEntity } from "../types";
 
 import { ValidationError } from "../utils/errors";
+import { EmailSubject, EmailType, sendMail } from "../utils/mailer";
 
 export interface tokenEntity extends JwtPayload {
   id: string;
@@ -48,7 +50,8 @@ export const registerUser = async (req: Request, res: Response) => {
     email,
     password: hashedPassword,
     terms,
-    token: ""
+    token: "",
+    confirmed: false,
   })
 
 
@@ -61,12 +64,16 @@ export const registerUser = async (req: Request, res: Response) => {
 
     await user.save()
 
+    const confirmedLink = `${config.domainAddress}/users/confirm/${user._id}`
+
+    sendMail(email, EmailSubject.register, EmailType.register, confirmedLink)
+
     res
-      .status(201)
+      .status(200)
       .json({
         _id: user._id,
         email: user.email,
-        message: 'Register user succesfull'
+        message: 'Check your email to activate your account.'
       })
   } else {
     res
@@ -79,12 +86,83 @@ export const registerUser = async (req: Request, res: Response) => {
 
 }
 
+// @desc Confirming a registration
+// @route post /api/users/confirm/:id
+// @acces Public
+
+export const confirmRegistration = async (req, res) => {
+
+  const userId = String(req.params.id);
+
+  if (!userId) {
+    res
+      .status(400)
+      .send('Error: Invalid id')
+    return;
+  }
+
+  const newUser = await User.findOne({
+    _id: userId
+  });
+
+  if (!newUser) {
+    res
+      .status(400)
+      .send('Error: Invalid id')
+    return;
+  }
+
+  newUser.confirmed = true;
+  await newUser.save();
+
+  res
+    .status(200)
+    .send('Thank you for confirming your email address. ')
+}
+
+
+
+
+export const resendRegisterVerification = async (req, res) => {
+
+  const email = String(req.body.email);
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res
+      .status(400)
+      .send('Error: Invalid credencials')
+    return;
+  }
+
+  const confirmedLink = `${config.domainAddress}/users/confirm/${user._id}`
+
+  sendMail(email, EmailSubject.register, EmailType.register, confirmedLink)
+
+  res
+    .status(200)
+    .json({
+      message: 'Check your email, we send you activation link.'
+    })
+}
+
+
 // @desc Authenticate a user
 // @route post /api/users/login
 // @acces Public
 export const loginUser = async (req: Request, res: Response) => {
 
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    res
+      .status(400)
+      .json({
+        message: 'Invalid credentials'
+      })
+    return;
+  }
 
   // Check for user email
   const user = await User.findOne({ email });
@@ -94,6 +172,16 @@ export const loginUser = async (req: Request, res: Response) => {
   await user.save()
 
   if (user && bcrypt.compare(password, user.password)) {
+
+    if (!user.confirmed) {
+      res
+        .status(401)
+        .json({
+          warning: 'This account is not confirmed',
+          resendVerificationLink: true,
+        })
+      return;
+    }
 
     res
       .status(200)
@@ -112,7 +200,7 @@ export const loginUser = async (req: Request, res: Response) => {
     res
       .status(400)
       .json({
-        message: 'Invalid credentials'
+        warning: 'Invalid credentials'
       })
     throw new ValidationError('Invalid credentials');
   }

@@ -4,6 +4,7 @@ export interface UserEntity {
   email: string
   password: string
   token: string | null
+  confirmed: boolean
 }
 
 export interface UserRequestEntity {
@@ -31,6 +32,8 @@ export interface UserRegisterRes {
   email?: string
   token?: string | null
   message?: string
+  warning?: string
+  resendVerificationLink?: boolean
 }
 
 export interface UserMeRes {

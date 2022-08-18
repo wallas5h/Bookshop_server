@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema({
   terms: {
     type: Boolean,
     required: true
-  }
+  },
+  confirmed: Boolean,
 
 },
   {
