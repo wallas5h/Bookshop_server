@@ -6,14 +6,18 @@ import process from "process";
 export enum EmailSubject {
   newsletter = 'Newsletter - sign up',
   register = 'Activate your account',
+  reset = 'Reset password',
+  set = 'Password reset confirmation',
 }
 
 export enum EmailType {
   newsletter = 'newsletter/newsletter',
-  register = 'register/register'
+  register = 'register/register',
+  reset = 'resetPwd/resetPwd',
+  set = 'setPwd/setPwd',
 }
 
-export const sendMail = async (email, subject, emailType: EmailType, link, link2 = "") => {
+export const sendMail = async (email, subject, emailType: EmailType, link = "", link2 = "", user = "", ip = "", date = "") => {
 
   let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -45,6 +49,10 @@ export const sendMail = async (email, subject, emailType: EmailType, link, link2
     template: emailType,
     context: {
       link,
+      link2,
+      user,
+      ip,
+      date,
     }
   }
 

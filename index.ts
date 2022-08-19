@@ -10,6 +10,7 @@ import { errorHandler } from './middleware/errorMiddleware';
 import { bookRouter } from './routes/bookRouter';
 import { cartRouter } from './routes/cartRouter';
 import { newsletterRouter } from './routes/newsleterRouter';
+import { passwordRouter } from './routes/passwordRouter';
 import { userRouter } from './routes/userRouter';
 import { wishlistRouter } from './routes/wishlistRouter';
 require('dotenv').config();
@@ -52,6 +53,7 @@ app.use('/api/book', bookRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/wishlist', wishlistRouter);
 app.use('/api/newsletter', newsletterRouter);
+app.use('/api/password', passwordRouter);
 
 //error middleware
 

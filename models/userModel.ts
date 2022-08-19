@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  refreshToken: {
+    type: String,
+    required: false
+  },
   terms: {
     type: Boolean,
     required: true
