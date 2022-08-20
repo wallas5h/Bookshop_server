@@ -46,6 +46,7 @@ export const getBooksFromCart = async (req, res) => {
         books: [],
         totalCost: 0,
       })
+    return;
   }
 
   const totalCost = cart.books
@@ -138,7 +139,8 @@ export const addBookToCart = async (req, res) => {
       guest: '',
       books: [
         {
-          id: bookId,
+          bookId,
+          title: book.title,
           count: 1,
           price: book.newPrice,
           availability: bookAvailability,
@@ -152,7 +154,8 @@ export const addBookToCart = async (req, res) => {
       guest: guestId,
       books: [
         {
-          id: bookId,
+          bookId,
+          title: book.title,
           count: 1,
           price: book.newPrice,
           availability: bookAvailability,
@@ -166,7 +169,7 @@ export const addBookToCart = async (req, res) => {
     let isCartContainBookId = false;
 
     cart.books.forEach(book => {
-      if (book.id === bookId) {
+      if (book.bookId === bookId) {
         book.count += 1;
         isCartContainBookId = true
       }
@@ -175,7 +178,8 @@ export const addBookToCart = async (req, res) => {
     if (!isCartContainBookId) {
       cart.books.push(
         {
-          id: bookId,
+          bookId,
+          title: book.title,
           count: 1,
           price: book.newPrice,
           availability: bookAvailability,
@@ -264,7 +268,7 @@ export const decreaseCountBookInCart = async (req, res) => {
   }
 
   cart.books.forEach(book => {
-    if (book.id === bookId) {
+    if (book.bookId === bookId) {
       book.count -= 1;
     }
   });
@@ -320,7 +324,7 @@ export const deleteBookFromCart = async (req, res) => {
       })
   }
 
-  cart.books = cart.books.filter(book => book.id !== bookId);
+  cart.books = cart.books.filter(book => book.bookId !== bookId);
 
   cart.save();
 

@@ -11,7 +11,8 @@ export const cartSchema = new mongoose.Schema({
     ref: 'Guest',
   },
   books: [{
-    id: String,
+    bookId: String,
+    title: String,
     count: Number,
     price: Number,
     availability: Boolean,
