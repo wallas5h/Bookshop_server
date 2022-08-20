@@ -5,7 +5,8 @@ import { Book } from '../models/bookModel';
 import { Guest } from "../models/guestModel";
 import { WishList } from '../models/wishListModel';
 import { GuestEntity, UserEntity } from "../types";
-import { verifyToken } from "./userController";
+import { verifyToken } from '../utils/logs';
+
 
 // @desc get cart
 // @route get /api/cart
@@ -62,7 +63,7 @@ export const addBookToWishlist = async (req, res) => {
 
   var { guestId, user, guest, userId, bookId }: { guestId: string; user: UserEntity; guest: GuestEntity; userId: string; bookId: any; } = await newFunction(req);
 
-  guestId = user ? null : guestId;   // gdy user true, czyszczę guestId -> cookie guest
+  guestId = user ? '' : guestId;   // gdy user true, czyszczę guestId -> cookie guest
 
   let bookAvailability: Boolean = true;
 
@@ -190,7 +191,7 @@ export const deleteBookFromWishlist = async (req, res) => {
     user = await User.findOne({ _id: userId });
   }
 
-  guestId = user ? null : guestId;   // gdy user true, czyszczę guestId -> cookie guest
+  guestId = user ? '' : guestId;   // gdy user true, czyszczę guestId -> cookie guest
 
   let wishlist = await WishList.findOne({
     $or: [

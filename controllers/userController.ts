@@ -1,18 +1,14 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import "express-async-errors";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import process from "process";
 import { config } from "../config/config";
 import { User } from "../models";
 import { UserEntity } from "../types";
 
 import { ValidationError } from "../utils/errors";
+import { generateRefreshToken, generateToken, verifyToken } from "../utils/logs";
 import { EmailSubject, EmailType, sendMail } from "../utils/mailer";
 
-export interface tokenEntity extends JwtPayload {
-  id: string;
-}
 
 // @desc register new user
 // @route post /api/users
@@ -51,6 +47,7 @@ export const registerUser = async (req: Request, res: Response) => {
     password: hashedPassword,
     terms,
     token: "",
+    refreshToken: "",
     confirmed: false,
   })
 
@@ -58,9 +55,9 @@ export const registerUser = async (req: Request, res: Response) => {
   if (user) {
 
     // create token and update user
-    const token = generateToken(user._id);
+    const token = generateRefreshToken(user._id);
 
-    user.token = token;
+    user.refreshToken = token;
 
     await user.save()
 
@@ -71,7 +68,6 @@ export const registerUser = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({
-        _id: user._id,
         email: user.email,
         message: 'Check your email to activate your account.'
       })
@@ -117,7 +113,7 @@ export const confirmRegistration = async (req, res) => {
 
   res
     .status(200)
-    .send('Thank you for confirming your email address. ')
+    .send('Thank you for confirming your account. ')
 }
 
 
@@ -167,11 +163,22 @@ export const loginUser = async (req: Request, res: Response) => {
   // Check for user email
   const user = await User.findOne({ email });
 
+  if (!user) {
+    res
+      .status(400)
+      .json({
+        warning: 'Invalid email or password'
+      })
+    return;
+  }
+
   const token = generateToken(user._id);
   user.token = token;
   await user.save()
 
-  if (user && bcrypt.compare(password, user.password)) {
+  const passMatch = await bcrypt.compare(password, user.password)
+
+  if (user && passMatch) {
 
     if (!user.confirmed) {
       res
@@ -191,7 +198,6 @@ export const loginUser = async (req: Request, res: Response) => {
         secure: true,
       })
       .json({
-        _id: user._id,
         name: user.name,
         email: user.email,
         message: 'Login successfully'
@@ -200,9 +206,9 @@ export const loginUser = async (req: Request, res: Response) => {
     res
       .status(400)
       .json({
-        warning: 'Invalid credentials'
+        warning: 'Invalid email or password'
       })
-    throw new ValidationError('Invalid credentials');
+    return;
   }
 
 }
@@ -229,7 +235,7 @@ export const logoutUser = async (req: Request, res: Response) => {
     throw new ValidationError('Invalid credentials');
   }
 
-  user.token = null;
+  user.token = '';
   await user.save();
 
   res
@@ -267,25 +273,6 @@ export const getMe = async (req: Request, res: Response) => {
   res
     .status(200)
     .json({
-      id: user._id,
       email: user.email
     })
-}
-
-
-// Generate JWT
-const generateToken = (id: string) => {
-  return jwt.sign({ id }, process.env.ACCESS_TOKEN_KEY, {
-    expiresIn: '30d'
-  })
-}
-
-// verify JWT
-export const verifyToken = (jwtCookie) => {
-  let encryptToken = jwt.verify(jwtCookie, process.env.ACCESS_TOKEN_KEY) as tokenEntity;
-  const id = encryptToken.id;
-  if (!id) {
-    return null
-  }
-  return id
 }

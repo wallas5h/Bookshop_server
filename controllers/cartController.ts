@@ -4,7 +4,8 @@ import { Book } from '../models/bookModel';
 import { Cart } from "../models/cartModel";
 import { Guest } from "../models/guestModel";
 import { GuestEntity, UserEntity } from "../types";
-import { verifyToken } from "./userController";
+import { verifyToken } from '../utils/logs';
+
 
 // @desc get cart
 // @route get /api/cart
@@ -83,7 +84,7 @@ export const addBookToCart = async (req, res) => {
     user = await User.findOne({ _id: userId });
   }
 
-  guestId = user ? null : guestId;   // gdy user true, czyszczę guestId -> cookie guest
+  guestId = user ? '' : guestId;   // gdy user true, czyszczę guestId -> cookie guest
 
   if (!user && !guestId) {
     guest = await Guest.create({
@@ -217,7 +218,7 @@ export const decreaseCountBookInCart = async (req, res) => {
     user = await User.findOne({ _id: userId });
   }
 
-  guestId = user ? null : guestId;   // gdy user true, czyszczę guestId -> cookie guest
+  guestId = user ? '' : guestId;   // gdy user true, czyszczę guestId -> cookie guest
 
   let cart = await Cart.findOne({
     $or: [
@@ -296,7 +297,7 @@ export const deleteBookFromCart = async (req, res) => {
     user = await User.findOne({ _id: userId });
   }
 
-  guestId = user ? null : guestId;   // gdy user true, czyszczę guestId -> cookie guest
+  guestId = user ? '' : guestId;   // gdy user true, czyszczę guestId -> cookie guest
 
   let cart = await Cart.findOne({
     $or: [
