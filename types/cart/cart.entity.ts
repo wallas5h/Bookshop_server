@@ -5,8 +5,10 @@ export interface CartModelType {
 }
 
 export interface GetBooksFromCartResponse {
-  id: string,
   _id: string,
+  bookId: string,
+  title: string,
+  price: number,
   count: number,
   availability?: boolean,
 }
