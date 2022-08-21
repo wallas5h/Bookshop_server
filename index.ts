@@ -9,6 +9,7 @@ import { connectDB } from './config/db';
 import { errorHandler } from './middleware/errorMiddleware';
 import { bookRouter } from './routes/bookRouter';
 import { cartRouter } from './routes/cartRouter';
+import { checkoutRouter } from './routes/checkoutRouter';
 import { newsletterRouter } from './routes/newsleterRouter';
 import { passwordRouter } from './routes/passwordRouter';
 import { userRouter } from './routes/userRouter';
@@ -40,6 +41,7 @@ app.use(cookieParser());
 // app.use(limiter);
 
 app.use(express.json());
+app.use(express.static("public"));
 
 
 app.use(urlencoded({
@@ -54,6 +56,7 @@ app.use('/api/cart', cartRouter);
 app.use('/api/wishlist', wishlistRouter);
 app.use('/api/newsletter', newsletterRouter);
 app.use('/api/password', passwordRouter);
+app.use('/api/checkout', checkoutRouter);
 
 //error middleware
 
