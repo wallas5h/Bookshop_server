@@ -1,27 +1,22 @@
-import nodemailer from 'nodemailer';
-import hbs from 'nodemailer-express-handlebars';
-import path from 'path';
+import nodemailer from "nodemailer";
+import hbs from "nodemailer-express-handlebars";
+import path from "path";
 import process from "process";
+import { EmailView } from "./mailer.utils";
 
-export enum EmailSubject {
-  newsletter = 'Newsletter - sign up',
-  register = 'Activate your account',
-  reset = 'Reset password',
-  set = 'Password reset confirmation',
-}
-
-export enum EmailType {
-  newsletter = 'newsletter/newsletter',
-  register = 'register/register',
-  reset = 'resetPwd/resetPwd',
-  set = 'setPwd/setPwd',
-}
-
-export const sendMail = async (email, subject, emailType: EmailType, link = "", link2 = "", user = "", ip = "", date = "") => {
-
+export const sendMail = async (
+  email,
+  subject,
+  emailView: EmailView,
+  link = "",
+  link2 = "",
+  user = "",
+  ip = "",
+  date = ""
+) => {
   let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
+    service: "gmail",
+    host: "smtp.gmail.com",
     port: 465,
     auth: {
       user: process.env.MAILER_USER_GG,
@@ -31,30 +26,30 @@ export const sendMail = async (email, subject, emailType: EmailType, link = "", 
 
   const handlebarOptions = {
     viewEngine: {
-      extName: '.hbs',
-      partialsDir: path.join(__dirname, '../views/'),
-      layoutsDir: path.join(__dirname, '../views/'),
-      defaultLayout: ''
+      extName: ".hbs",
+      partialsDir: path.join(__dirname, "../views/"),
+      layoutsDir: path.join(__dirname, "../views/"),
+      defaultLayout: "",
     },
-    viewPath: path.join(__dirname, '../views/'),
-    extName: '.hbs'
+    viewPath: path.join(__dirname, "../views/"),
+    extName: ".hbs",
   };
 
-  transporter.use('compile', hbs(handlebarOptions));
+  transporter.use("compile", hbs(handlebarOptions));
 
   const mailOptions = {
     from: `"BooksShop" <${process.env.MAILER_USER_GG}>`,
     to: email,
     subject,
-    template: emailType,
+    template: emailView,
     context: {
       link,
       link2,
       user,
       ip,
       date,
-    }
-  }
+    },
+  };
 
   let info = await transporter.sendMail(mailOptions, function (err, data) {
     if (err) {
@@ -64,6 +59,4 @@ export const sendMail = async (email, subject, emailType: EmailType, link = "", 
       console.log("Message sent!");
     }
   });
-
-}
-
+};
