@@ -5,12 +5,15 @@ import {
   decreaseCountBookInCart,
   deleteBookFromCart,
   getBooksFromCart,
+  getBooksFromCartForCheckout,
 } from "../controllers/cartController";
 
 export const cartRouter = Router();
 
 cartRouter
   .get("/", getBooksFromCart)
+
+  .get("/checkout", getBooksFromCartForCheckout)
 
   .post("/:bookId", addBookToCart)
 

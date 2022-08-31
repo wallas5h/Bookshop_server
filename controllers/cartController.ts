@@ -48,6 +48,49 @@ export const getBooksFromCart = async (req, res) => {
   });
 };
 
+// @desc get cart
+// @route get /api/cart/checkout
+// @acces Pivate
+
+export const getBooksFromCartForCheckout = async (req, res) => {
+  let user: UserEntity | null = null;
+  let userId: string | null = null;
+  let guest: GuestEntity | null = null;
+
+  const jwtCookie: string | undefined = req.cookies.jwt;
+  let guestId: string | null = req.cookies.guest;
+
+  if (jwtCookie) {
+    userId = verifyToken(jwtCookie);
+    user = await User.findOne({ _id: userId });
+  }
+
+  let cart = await findOneCart(userId, guestId);
+
+  if (!cart) {
+    res.status(200).json({
+      cartId: "",
+      books: [],
+      totalCost: 0,
+    });
+    return;
+  }
+
+  let books = cart.books.filter((book) => book.count > 0);
+
+  const totalCost = books
+    .map((book) => book.count * book.price)
+    .reduce((prev, curr) => {
+      return prev + curr;
+    }, 0);
+
+  res.status(200).json({
+    cartId: cart._id,
+    books,
+    totalCost,
+  });
+};
+
 // @desc post cart
 // @route post /api/cart/:userToken/:bookId'
 // @acces Pivate
@@ -229,6 +272,10 @@ export const decreaseCountBookInCart = async (req, res) => {
     });
 };
 
+// @desc delete cart
+// @route delete /api/cart/:bookId'
+// @acces Pivate
+
 export const deleteBookFromCart = async (req, res) => {
   const bookId = req.params.bookId;
   let guestId: string | null = req.cookies.guest;
@@ -267,6 +314,10 @@ export const deleteBookFromCart = async (req, res) => {
       message: "Product deleted from cart",
     });
 };
+
+// @desc put cart
+// @route put /api/cart/change/status/:cartId'
+// @acces Pivate
 
 export const changeCartStatus = async (req: Request, res: Response) => {
   const cartId = String(req.params.cartId);
