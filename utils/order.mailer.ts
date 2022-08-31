@@ -4,15 +4,20 @@ import path from "path";
 import process from "process";
 import { EmailView } from "./mailer.utils";
 
-export const sendMail = async (
+export const sendOrderMail = async (
+  transactionId,
   email,
   subject,
   emailView: EmailView,
-  link = "",
-  link2 = "",
-  user = "",
-  ip = "",
-  date = ""
+  books,
+  addressDetails,
+  deliveryCost,
+  deliveryName,
+  paymentMethodName,
+  booksCost,
+  totalCost,
+  date,
+  invoice
 ) => {
   let transporter = nodemailer.createTransport({
     service: "gmail",
@@ -43,11 +48,29 @@ export const sendMail = async (
     subject,
     template: emailView,
     context: {
-      link,
-      link2,
-      user,
-      ip,
+      booksData: books.map((book, index) => {
+        return {
+          nr: index + 1,
+          title: book.title,
+          count: book.count,
+          price: Number(book.price).toFixed(2),
+        };
+      }),
+      transactionId,
+      name: addressDetails.name,
+      street: addressDetails.street,
+      city: addressDetails.city,
+      postcode: addressDetails.postcode,
+      country: addressDetails.country,
+      areaCode: addressDetails.areaCode,
+      phone: addressDetails.phone,
+      deliveryCost: Number(deliveryCost).toFixed(2),
+      deliveryName,
+      paymentMethodName,
+      booksCost: Number(booksCost).toFixed(2),
+      totalCost,
       date,
+      invoice,
     },
   };
 

@@ -1,15 +1,24 @@
 import { Router } from "express";
-import { addBookToCart, decreaseCountBookInCart, deleteBookFromCart, getBooksFromCart } from "../controllers/cartController";
-
-
+import {
+  addBookToCart,
+  changeCartStatus,
+  decreaseCountBookInCart,
+  deleteBookFromCart,
+  getBooksFromCart,
+  getBooksFromCartForCheckout,
+} from "../controllers/cartController";
 
 export const cartRouter = Router();
 
 cartRouter
-  .get('/', getBooksFromCart)
+  .get("/", getBooksFromCart)
 
-  .post('/:bookId', addBookToCart)
+  .get("/checkout", getBooksFromCartForCheckout)
 
-  .put('/:bookId', decreaseCountBookInCart)
+  .post("/:bookId", addBookToCart)
 
-  .delete('/:bookId', deleteBookFromCart)
+  .put("/:bookId", decreaseCountBookInCart)
+
+  .delete("/:bookId", deleteBookFromCart)
+
+  .put("/change/status/:cartId", changeCartStatus);
