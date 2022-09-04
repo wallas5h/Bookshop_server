@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import { config } from "./config/config";
 import { connectDB } from "./config/db";
 import { errorHandler } from "./middleware/errorMiddleware";
+import { adminRouter } from "./routes/adminRouter";
 import { bookRouter } from "./routes/bookRouter";
 import { cartRouter } from "./routes/cartRouter";
 import { checkoutRouter } from "./routes/checkoutRouter";
@@ -57,6 +58,7 @@ app.use("/api/wishlist", wishlistRouter);
 app.use("/api/newsletter", newsletterRouter);
 app.use("/api/password", passwordRouter);
 app.use("/api/checkout", checkoutRouter);
+app.use("/api/admin", adminRouter);
 
 //error middleware
 

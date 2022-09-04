@@ -1,29 +1,21 @@
-
-import { Response } from "express"
-import { Book } from "../models/bookModel"
-
-
-
-
+import { Response } from "express";
+import { Book } from "../models/bookModel";
 
 // @desc get books
 // @route get /api/book
 // @acces Pivate
 
 export const getBooks = async (req, res) => {
-  const books = await Book.find({})
+  const books = await Book.find({});
 
-  res
-    .status(200)
-    .json(books)
-}
+  res.status(200).json(books);
+};
 
 // @desc get books
 // @route get /api/book/search/querystrings
 // @acces Pivate
 
 export const searchBooks = async (req, res) => {
-
   const searchPhrase = String(req.query.phrase);
   const currentPage = Number(req.query.currentPage);
   const perPage = Number(req.query.perPage);
@@ -33,42 +25,39 @@ export const searchBooks = async (req, res) => {
   const books = await Book.find({
     $or: [
       {
-        title: { $regex: '.*' + searchPhrase + '.*' },
+        title: { $regex: ".*" + searchPhrase + ".*" },
         active: true,
       },
       {
-        author: { $regex: '.*' + searchPhrase + '.*' },
+        author: { $regex: ".*" + searchPhrase + ".*" },
         active: true,
       },
-    ]
-  })
-    .skip(maxPerPage * (currentPage - 1))
+    ],
+  }).skip(maxPerPage * (currentPage - 1));
   // .limit(8)
 
   const count = await Book.find({
     $or: [
       {
-        title: { $regex: '.*' + searchPhrase + '.*' },
+        title: { $regex: ".*" + searchPhrase + ".*" },
         active: true,
       },
       {
-        author: { $regex: '.*' + searchPhrase + '.*' },
+        author: { $regex: ".*" + searchPhrase + ".*" },
         active: true,
       },
-    ]
-  }).count()
+    ],
+  }).count();
 
   const totalPages = Math.ceil(count / maxPerPage);
 
-  res
-    .status(200)
-    .json({
-      books,
-      currentPage,
-      totalPages,
-      count,
-    })
-}
+  res.status(200).json({
+    books,
+    currentPage,
+    totalPages,
+    count,
+  });
+};
 
 // @desc feature books
 // @route get /api/book/feature
@@ -78,118 +67,94 @@ export const featureBooks = async (req, res) => {
   const books = await Book.find({
     count: { $gt: 0 },
     active: true,
-  }).sort({ newPrice: 1 }).limit(10)
+  })
+    .sort({ newPrice: 1 })
+    .limit(10);
 
-  res
-    .status(200)
-    .json(books)
-}
+  res.status(200).json(books);
+};
 
 // @desc feature books
 // @route get /api/book/:id
 // @acces Pivate
 
 export const findBookById = async (req, res) => {
-  const id = req.params.id
+  const id = req.params.id;
   const book = await Book.find({
-    _id: id
-  })
+    _id: id,
+  });
 
-  res
-    .status(200)
-    .json(book)
-}
+  res.status(200).json(book);
+};
 
 // @desc set book
 // @route post /api/book
 // @acces Pivate
 
 export const setBook = async (req, res) => {
-
-  const { title, category, author, description, newPrice, oldPrice, count, active, imageURL } = req.body
-
-  // if (!req.body.text) {
-  //   res.status(400)
-  //   throw new ValidationError('Please add a text field')
-  // }
+  const {
+    title,
+    category,
+    author,
+    description,
+    newPrice,
+    oldPrice,
+    count,
+    active,
+    imageURL,
+  } = req.body;
 
   const book = await Book.create({
-    title, category, author, description, newPrice, oldPrice, imageURL, count, active,
-  })
+    title,
+    category,
+    author,
+    description,
+    newPrice,
+    oldPrice,
+    imageURL,
+    count,
+    active,
+  });
 
-  res
-    .status(200)
-    .json(book)
-}
+  res.status(200).json({
+    message: `Book ${title} added to base`,
+  });
+};
 
-// @desc update goals
+// @desc update books
 // @route put /api/book/:id
 // @acces Pivate
 
 export const updateBook = async (req, res: Response) => {
-
-  const book = await Book.findById(req.params.id)
+  const book = await Book.findById(req.params.id);
 
   if (!book) {
-    res
-      .status(200)
-    throw new Error('Goal not found')
+    res.status(200);
+    throw new Error("Book not found");
   }
 
-  // const user = await User.findById(req.user.id)
+  const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
 
-  // // Check for user
-  // if (!user) {
-  //   res.status(401);
-  //   throw new Error('user not found');
-  // }
+  res.status(200).json(updatedBook);
+};
 
-  // // Make sure the logged in user matches the goal user
-  // if (goal.user.toString() !== user.id) {
-  //   res.status(401);
-  //   throw new Error('user not authorized');
-  // }
-
-  const updatedGoal = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true })
-
-  res
-    .status(200)
-    .json(updatedGoal)
-}
-
-// @desc delet goals
+// @desc delet book
 // @route delete /api/book/:id
 // @acces Pivate
 
 export const deleteBook = async (req, res) => {
-
-  const book = await Book.findById(req.params.id)
+  const book = await Book.findById(req.params.id);
 
   if (!book) {
-    res
-      .status(200)
-    throw new Error('Goal not found')
+    res.status(200);
+    throw new Error("Book not found");
   }
 
-  // const user = await User.findById(req.user.id)
+  await Book.findByIdAndRemove(req.params.id);
 
-  // // Check for user
-  // if (!user) {
-  //   res.status(401);
-  //   throw new Error('user not found');
-  // }
-
-  // // Make sure the logged in user matches the goal user
-  // if (goal.user.toString() !== user.id) {
-  //   res.status(401);
-  //   throw new Error('user not authorized');
-  // }
-
-  await Book.findByIdAndRemove(req.params.id)
-
-  res
-    .status(200)
-    .json({
-      id: req.params.id
-    })
-}
+  res.status(200).json({
+    id: req.params.id,
+  });
+};

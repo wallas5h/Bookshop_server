@@ -143,11 +143,6 @@ export const loginUser = async (req: Request, res: Response) => {
     });
     return;
   }
-
-  const token = generateToken(user._id);
-  user.token = token;
-  await user.save();
-
   const passMatch = await bcrypt.compare(password, user.password);
 
   if (user && passMatch) {
@@ -158,6 +153,10 @@ export const loginUser = async (req: Request, res: Response) => {
       });
       return;
     }
+
+    const token = generateToken(user._id);
+    user.token = token;
+    await user.save();
 
     res
       .status(200)
