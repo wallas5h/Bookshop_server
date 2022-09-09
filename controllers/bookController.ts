@@ -137,7 +137,9 @@ export const updateBook = async (req, res: Response) => {
     new: true,
   });
 
-  res.status(200).json(updatedBook);
+  res.status(200).json({
+    message: `Book updated`,
+  });
 };
 
 // @desc delet book
@@ -148,7 +150,7 @@ export const deleteBook = async (req, res) => {
   const book = await Book.findById(req.params.id);
 
   if (!book) {
-    res.status(200);
+    res.status(400);
     throw new Error("Book not found");
   }
 
@@ -156,5 +158,6 @@ export const deleteBook = async (req, res) => {
 
   res.status(200).json({
     id: req.params.id,
+    message: "Book deleted",
   });
 };

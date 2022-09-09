@@ -9,7 +9,6 @@ import {
   updateBook,
 } from "../controllers";
 import { adminAuthMiddleware } from "../middleware/adminAuthMiddleware";
-import { authMiddleware } from "../middleware/authMiddleware";
 
 export const bookRouter = Router();
 
@@ -24,6 +23,6 @@ bookRouter
 
   .post("/", adminAuthMiddleware, setBook)
 
-  .put("/:id", authMiddleware, updateBook)
+  .put("/:id", adminAuthMiddleware, updateBook)
 
-  .delete("/:id", authMiddleware, deleteBook);
+  .delete("/:id", adminAuthMiddleware, deleteBook);
