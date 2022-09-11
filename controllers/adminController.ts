@@ -115,7 +115,6 @@ export const adminLogout = async (req: any, res: Response) => {
 
   const admin = await Admin.findOne({
     _id: req.admin.id,
-    accessToken,
   });
 
   if (!admin) {
@@ -131,7 +130,7 @@ export const adminLogout = async (req: any, res: Response) => {
   admin.accessToken = "";
   await admin.save();
 
-  return res.status(204).json({
+  return res.status(200).json({
     message: "Logout successfully",
   });
 };
@@ -143,6 +142,8 @@ export const adminLogout = async (req: any, res: Response) => {
 export const refreshAdminToken = async (req: any, res: Response) => {
   const id = req.admin.id;
   const refreshToken = String(req.body.refreshToken);
+
+  console.log("Działa refresh token");
 
   const admin = await Admin.findOne({
     _id: id,
