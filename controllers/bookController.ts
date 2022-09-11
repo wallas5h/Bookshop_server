@@ -129,7 +129,7 @@ export const updateBook = async (req, res: Response) => {
   const book = await Book.findById(req.params.id);
 
   if (!book) {
-    res.status(200);
+    res.status(400);
     throw new Error("Book not found");
   }
 
