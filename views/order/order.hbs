@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0 2rem;
+      line-height: 2rem;
+      font-weight: 600;
+      color: #444;
+      box-sizing: border-box;
+    }
+
+    .bookshop {
+      padding: 2rem 0;
+      font-size: 2rem;
+      color: #27ae60;
+      font-weight: 900;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    tbody {
+      display: block;
+      border: 1px solid #333;
+    }
+
+    tr {
+      display: flex;
+      width: 100%;
+      border: 0.5px solid #333;
+      text-align: right;
+    }
+
+    th {
+      width: 20%;
+      border-right: 1px solid #000;
+      padding-right: 1rem;
+    }
+
+    td {
+      display: block;
+      width: 100%;
+      text-align: right;
+      padding-right: 1rem;
+    }
+
+    th.books-nr {
+      width: 5%;
+      text-align: center;
+    }
+
+    th.books-title {
+      padding-left: 1rem;
+      width: 75%;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    th.books-quantity {
+      width: 10%;
+      text-align: center;
+    }
+
+    th.books-price {
+      width: 10%;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>ORDER CONFIRMATION</h2>
+  <span style="font-size: 0.75rem;font-style: italic; color:red">(This is testing version - order is not real.)</span>
+  <div>
+    <span style="text-transform: capitalize;">{{name}}</span>, thank you for
+    your order!
+  </div>
+  <div>
+    We received your order and will contact you as soon as your package is
+    shipped. You can find your purchase information below.
+  </div>
+
+  <h3>Order Summary </h3>
+  <div>Transaction id: <span>{{ transactionId}}</span></div>
+  <div>{{date}}</div>
+
+  <table class="books">
+    <thead>
+      <tr>
+        <th class="books-nr">Lp</th>
+        <th class="books-title">Title</th>
+        <th class="books-quantity">Quantity</th>
+        <th class="books-price">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{# each booksData}}
+      <tr>
+        <th class="books-nr">{{nr}}</th>
+        <th class="books-title">{{title}}</th>
+        <th class="books-quantity">{{count}}</th>
+        <th class="books-price">{{price}} zł</th>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <h3>Order total</h3>
+  <table>
+    <tbody>
+      <tr>
+        <th>Subtotal price:</th>
+        <td>{{booksCost}} zł</td>
+      </tr>
+      <tr>
+        <th>Shipping price:</th>
+        <td>{{deliveryCost}} zł</td>
+      </tr>
+      <tr>
+        <th>Total price:</th>
+        <td>{{totalCost}} zł</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Billing and shipping</h3>
+  <table>
+    <tbody>
+      <tr>
+        <th>Name</th>
+        <td>{{name}}</td>
+      </tr>
+      <tr>
+        <th>Adress</th>
+        <td>{{street}}</td>
+      </tr>
+      <tr>
+        <th>City</th>
+        <td>{{city}}</td>
+      </tr>
+      <tr>
+        <th>Postcode</th>
+        <td>{{postcode}}</td>
+      </tr>
+      <tr>
+        <th>Country</th>
+        <td>{{country}}</td>
+      </tr>
+      <tr>
+        <th>Phone</th>
+        <td>{{areaCode}}{{phone}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <tbody>
+      <tr>
+        <th>Shipping method:</th>
+        <td>{{deliveryName}}</td>
+      </tr>
+      <tr>
+        <th>Payment method:</th>
+        <td>{{paymentMethodName}}</td>
+      </tr>
+      <tr>
+        <th>Invoice</th>
+        <td>{{invoice}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="bookshop">BooksShop</div>
+</body>
+
+</html>
