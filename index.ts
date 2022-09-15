@@ -26,7 +26,7 @@ const corsOptions = {
 };
 
 const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
+  windowMs: 1000,
   max: 100,
 });
 
@@ -38,7 +38,7 @@ app.use(cors(corsOptions));
 
 app.use(cookieParser());
 
-// app.use(limiter);
+app.use(limiter);
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -61,8 +61,6 @@ app.use("/api/checkout", checkoutRouter);
 app.use("/api/admin", adminRouter);
 
 //error middleware
-
-// app.use(handleError);
 app.use(errorHandler);
 
 app.use(function (req, res, next) {
